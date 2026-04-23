@@ -135,7 +135,7 @@ function SpanControls({
           title={isHeader ? '라벨 셀 해제 (th → td)' : '라벨 셀로 지정 (td → th, table-secondary)'}
           onClick={onToggleHeader}
         >
-          H
+          L
         </button>
       )}
       <label title="row span">
