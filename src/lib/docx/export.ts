@@ -178,7 +178,28 @@ function decodeEntities(s: string): string {
 const BORDER = { style: BorderStyle.SINGLE, size: 4, color: 'BBBBBB' };
 const SECONDARY_SHADING = { type: ShadingType.CLEAR, color: 'auto', fill: 'E9ECEF' };
 
+/**
+ * A4(210mm) · 기본 여백 1" 가정 시 본문 폭 ≈ 9000 twips.
+ * 표 컬럼은 이 값을 균등 분배해 `columnWidths` 로 심는다.
+ * 이유: `docx` 라이브러리가 이 옵션 없이 생성하면 `w:tblGrid` 의 각
+ * `w:gridCol w:w` 를 기본값 100 twips(≈1.76mm) 로 채운다. Word 는 `w:tblW=100%`
+ * 만 보고 유연히 분배하지만 Google Docs 는 gridCol 을 엄격히 반영해 컬럼이
+ * 1~2mm 로 찌그러진다. indent 적용 시 그만큼 뺀 폭을 쓴다.
+ */
+const BODY_WIDTH_TWIPS = 9000;
+
 function tableDataToDocx(data: TableData, indentLeft?: number): Table {
+  const colCount = Math.max(
+    1,
+    ...data.rows.map((row) => row.cells.reduce((s, c) => s + (c.colspan || 1), 0)),
+  );
+  const usable = Math.max(1000, BODY_WIDTH_TWIPS - (indentLeft ?? 0));
+  const baseCol = Math.floor(usable / colCount);
+  const columnWidths = Array.from({ length: colCount }, (_, i) =>
+    // 마지막 컬럼에 남는 twips 몰아주기(반올림 오차 흡수).
+    i === colCount - 1 ? usable - baseCol * (colCount - 1) : baseCol,
+  );
+
   const rows: TableRow[] = data.rows.map((row) => {
     const cells: TableCell[] = row.cells.map((c) => {
       const isSecondary =
@@ -186,9 +207,16 @@ function tableDataToDocx(data: TableData, indentLeft?: number): Table {
         c.className.includes('table-secondary') ||
         c.tag === 'th';
 
+      const span = c.colspan || 1;
+      // cell 너비도 명시(= Google Docs 호환성 ↑). colspan 만큼 합산.
+      const cellW = columnWidths
+        .slice(0, span)
+        .reduce((s, w) => s + w, 0);
+
       return new TableCell({
         rowSpan: c.rowspan > 1 ? c.rowspan : undefined,
-        columnSpan: c.colspan > 1 ? c.colspan : undefined,
+        columnSpan: span > 1 ? span : undefined,
+        width: { size: cellW, type: WidthType.DXA },
         shading: isSecondary ? SECONDARY_SHADING : undefined,
         children: cellHtmlToParagraphs(c.html, c.tag === 'th'),
         margins: { top: 80, bottom: 80, left: 100, right: 100 },
@@ -199,6 +227,7 @@ function tableDataToDocx(data: TableData, indentLeft?: number): Table {
 
   return new Table({
     rows,
+    columnWidths,
     width: { size: 100, type: WidthType.PERCENTAGE },
     indent: indentLeft !== undefined ? { size: indentLeft, type: WidthType.DXA } : undefined,
     borders: {
