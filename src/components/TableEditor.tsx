@@ -1,6 +1,13 @@
 import { useCallback } from 'react';
 import type { TableData } from '../types';
-import { cloneLastBodyRow, setCellSpan, toggleCellHeader } from '../lib/table';
+import {
+  addColumn,
+  buildTableGrid,
+  cloneLastBodyRow,
+  removeLastColumn,
+  setCellSpan,
+  toggleCellHeader,
+} from '../lib/table';
 import { useAutosize } from '../hooks/useAutosize';
 import { IconBtn } from './IconBtn';
 
@@ -11,6 +18,7 @@ type Props = {
 
 export function TableEditor({ data, onChange }: Props) {
   const bodyCount = data.rows.filter((r) => !r.isHead).length;
+  const colCount = buildTableGrid(data.rows).width;
 
   const updateCell = useCallback(
     (rowIdx: number, cellIdx: number, html: string) => {
@@ -66,6 +74,17 @@ export function TableEditor({ data, onChange }: Props) {
     onChange({ ...data, rows });
   };
 
+  const addCol = () => {
+    onChange(addColumn(data));
+  };
+
+  const delLastCol = () => {
+    if (colCount <= 1) return;
+    if (!confirm('마지막 열을 삭제하시겠습니까?')) return;
+    const next = removeLastColumn(data);
+    if (next) onChange(next);
+  };
+
   return (
     <div className="ed-tablewrap">
       <table className="ed-table">
@@ -103,8 +122,14 @@ export function TableEditor({ data, onChange }: Props) {
       <div className="table-actions">
         <IconBtn variant="ghost" onClick={addRow} title="마지막 tbody 행을 복제">+ 행 추가</IconBtn>
         <IconBtn variant="ghost" onClick={delLastRow}>- 마지막 행 삭제</IconBtn>
+        <IconBtn variant="ghost" onClick={addCol} title="모든 행 끝에 빈 셀 추가">+ 열 추가</IconBtn>
+        <IconBtn variant="ghost" onClick={delLastCol} title="마지막 격자 열 삭제">
+          - 마지막 열 삭제
+        </IconBtn>
         <span className="spacer" />
-        <span className="text-muted">{bodyCount} rows</span>
+        <span className="text-muted">
+          {bodyCount} rows · {colCount} cols
+        </span>
       </div>
     </div>
   );

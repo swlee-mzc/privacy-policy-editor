@@ -1,28 +1,51 @@
-import { useState } from 'react';
-import type { Doc } from '../types';
+import { useEffect, useRef, useState } from 'react';
+import type { Doc, DocMeta } from '../types';
 import { toJson, toMarkdown } from '../lib/export';
 import { toDocxBlob } from '../lib/docx';
 import { hasFilePicker, openFile, saveFile } from '../lib/fs';
 import { HelpDrawer } from './HelpDrawer';
+import { DocInfoButton } from './DocInfoButton';
 
 type Props = {
   doc: Doc | null;
   fileName: string;
   fileHandle?: FileSystemFileHandle;
+  docMeta: DocMeta | null;
   onLoad: (name: string, file: File, handle?: FileSystemFileHandle) => void;
   onHandleChange: (h: FileSystemFileHandle | undefined) => void;
 };
 
-export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: Props) {
+export function Toolbar({
+  doc, fileName, fileHandle, docMeta,
+  onLoad, onHandleChange,
+}: Props) {
   const pickerAvailable = hasFilePicker();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
 
   const handleOpen = async () => {
     const result = await openFile();
     if (result) onLoad(result.name, result.file, result.handle);
   };
 
-  const save = async (saveAs: boolean) => {
+  const saveJson = async (saveAs: boolean) => {
     if (!doc) return;
     const base = fileName.replace(/\.json$/i, '');
     const handle = await saveFile({
@@ -36,7 +59,7 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
     onHandleChange(handle);
   };
 
-  const exportMarkdown = async () => {
+  const saveMarkdown = async () => {
     if (!doc) return;
     const base = fileName.replace(/\.json$/i, '');
     await saveFile({
@@ -47,7 +70,7 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
     });
   };
 
-  const exportDocx = async () => {
+  const saveDocx = async () => {
     if (!doc) return;
     const base = fileName.replace(/\.json$/i, '');
     const blob = await toDocxBlob(doc);
@@ -59,7 +82,22 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
     });
   };
 
-  const exportJson = () => save(true); // 항상 새 위치 선택
+  const runPrint = () => window.print();
+
+  // 주 버튼: JSON 이미 연결되어 있으면 바로 덮어쓰기, 아니면 메뉴 열기
+  const primaryAction = async () => {
+    if (!doc) return;
+    if (fileHandle) {
+      await saveJson(false);
+    } else {
+      setMenuOpen((v) => !v);
+    }
+  };
+
+  const runMenuItem = async (fn: () => void | Promise<void>) => {
+    setMenuOpen(false);
+    await fn();
+  };
 
   return (
     <div className="toolbar">
@@ -82,47 +120,94 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
         )}
       </span>
 
-      <div className="ms-auto" style={{ display: 'flex', gap: '.25rem' }}>
-        <button
-          className="btn btn-sm btn-primary"
-          onClick={() => save(false)}
-          disabled={!doc}
-          title={fileHandle ? '현재 파일에 덮어쓰기' : '저장 위치·이름 선택'}
-        >
-          {fileHandle ? '저장' : '저장...'}
-        </button>
-        <button
-          className="btn btn-sm btn-outline-secondary"
-          onClick={exportJson}
-          disabled={!doc}
-          title="새 위치에 JSON으로 저장"
-        >
-          다른 이름으로...
-        </button>
-        <button
-          className="btn btn-sm btn-outline-secondary"
-          onClick={exportMarkdown}
-          disabled={!doc}
-          title="Markdown으로 내보내기"
-        >
-          MD...
-        </button>
-        <button
-          className="btn btn-sm btn-outline-secondary"
-          onClick={exportDocx}
-          disabled={!doc}
-          title="Word 문서(.docx)로 내보내기"
-        >
-          DOCX...
-        </button>
-        <button
-          className="btn btn-sm btn-outline-secondary"
-          onClick={() => window.print()}
-          disabled={!doc}
-          title="미리보기만 인쇄 (프린터 대화상자)"
-        >
-          인쇄...
-        </button>
+      <div className="ms-auto" style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
+        {docMeta && <DocInfoButton key={docMeta.fileName} meta={docMeta} />}
+        <div className="save-menu" ref={menuRef}>
+          <div className="save-menu-split">
+            <button
+              type="button"
+              className="btn btn-sm btn-primary save-menu-main"
+              onClick={primaryAction}
+              disabled={!doc}
+              title={
+                fileHandle
+                  ? '현재 JSON 파일에 덮어쓰기 (▾ 으로 다른 형식 선택)'
+                  : '저장 형식 선택'
+              }
+            >
+              {fileHandle ? '저장' : '저장...'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-primary save-menu-caret"
+              onClick={() => setMenuOpen((v) => !v)}
+              disabled={!doc}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              aria-label="저장 형식 선택"
+              title="저장·내보내기 형식 선택"
+            >
+              ▾
+            </button>
+          </div>
+          {menuOpen && (
+            <div className="save-menu-list" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                className="save-menu-item"
+                onClick={() => runMenuItem(() => saveJson(false))}
+                disabled={!fileHandle}
+                title={
+                  fileHandle
+                    ? '현재 연결된 JSON 파일에 덮어쓰기'
+                    : '현재 연결된 파일이 없어 사용할 수 없음'
+                }
+              >
+                <span className="save-menu-item-label">JSON 덮어쓰기</span>
+                <span className="save-menu-item-hint">현재 파일에 저장</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="save-menu-item"
+                onClick={() => runMenuItem(() => saveJson(true))}
+              >
+                <span className="save-menu-item-label">JSON 다른 이름으로</span>
+                <span className="save-menu-item-hint">새 위치·이름으로 .json 저장</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="save-menu-item"
+                onClick={() => runMenuItem(saveDocx)}
+              >
+                <span className="save-menu-item-label">DOCX 저장</span>
+                <span className="save-menu-item-hint">Word 문서 (.docx)</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="save-menu-item"
+                onClick={() => runMenuItem(saveMarkdown)}
+              >
+                <span className="save-menu-item-label">Markdown 저장</span>
+                <span className="save-menu-item-hint">.md 텍스트</span>
+              </button>
+              <div className="save-menu-sep" />
+              <button
+                type="button"
+                role="menuitem"
+                className="save-menu-item"
+                onClick={() => runMenuItem(runPrint)}
+              >
+                <span className="save-menu-item-label">인쇄 / PDF</span>
+                <span className="save-menu-item-hint">브라우저 인쇄 대화상자</span>
+              </button>
+            </div>
+          )}
+        </div>
+
         <button
           type="button"
           className="gh-link"

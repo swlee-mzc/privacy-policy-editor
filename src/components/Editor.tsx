@@ -32,6 +32,11 @@ export function Editor({ doc, onChange }: Props) {
     contents.splice(idx + 1, 0, copy);
     onChange({ ...doc, contents });
   };
+  const insertSectionAfter = (idx: number) => {
+    const contents = [...doc.contents];
+    contents.splice(idx + 1, 0, { title: `제${idx + 2}조 (새 섹션)`, lines: [] });
+    onChange({ ...doc, contents });
+  };
   const moveSection = (from: number, to: number) => {
     if (to < 0 || to >= doc.contents.length) return;
     const contents = [...doc.contents];
@@ -43,7 +48,7 @@ export function Editor({ doc, onChange }: Props) {
     const n = doc.contents.length + 1;
     onChange({
       ...doc,
-      contents: [...doc.contents, { title: `제${n}조 (새 섹션)`, lines: [''] }],
+      contents: [...doc.contents, { title: `제${n}조 (새 섹션)`, lines: [] }],
     });
   };
 
@@ -79,6 +84,7 @@ export function Editor({ doc, onChange }: Props) {
           onChange={(v) => updateSection(sIdx, v)}
           onDelete={() => deleteSection(sIdx)}
           onDuplicate={() => duplicateSection(sIdx)}
+          onInsertAfter={() => insertSectionAfter(sIdx)}
           onMoveUp={() => moveSection(sIdx, sIdx - 1)}
           onMoveDown={() => moveSection(sIdx, sIdx + 1)}
         />

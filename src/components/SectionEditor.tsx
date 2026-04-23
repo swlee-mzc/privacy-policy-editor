@@ -10,6 +10,7 @@ type Props = {
   onChange: (next: Section) => void;
   onDelete: () => void;
   onDuplicate: () => void;
+  onInsertAfter: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
 };
@@ -30,7 +31,7 @@ const EMPTY_TABLE_LEFT_LABEL =
 
 export function SectionEditor({
   index, section, isFirst, isLast,
-  onChange, onDelete, onDuplicate, onMoveUp, onMoveDown,
+  onChange, onDelete, onDuplicate, onInsertAfter, onMoveUp, onMoveDown,
 }: Props) {
   const updateTitle = (v: string) => onChange({ ...section, title: v });
 
@@ -71,7 +72,8 @@ export function SectionEditor({
         <div className="section-actions">
           <IconBtn onClick={onMoveUp} disabled={isFirst} title="섹션 위로">↑</IconBtn>
           <IconBtn onClick={onMoveDown} disabled={isLast} title="섹션 아래로">↓</IconBtn>
-          <IconBtn onClick={onDuplicate} title="섹션 복제">⎘</IconBtn>
+          <IconBtn onClick={onInsertAfter} title="아래에 빈 섹션 추가 (제목만)">+</IconBtn>
+          <IconBtn onClick={onDuplicate} title="섹션 복제 (내용 포함)">⎘</IconBtn>
           <IconBtn variant="danger" onClick={onDelete} title="섹션 삭제">✕</IconBtn>
         </div>
       </div>

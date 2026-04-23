@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Doc, DocMeta } from './types';
 import { Toolbar } from './components/Toolbar';
 import { Editor } from './components/Editor';
 import { Preview } from './components/Preview';
-import { DocBanner } from './components/DocBanner';
 import { parseDocx, buildDocInfo, validateDoc, type Issue } from './lib/docx';
 
 // 동일 issues/info 로 재렌더하지 않도록 얕은 비교. JSON 문자열화가 가장 단순.
@@ -16,12 +15,25 @@ function arraysEqual(a: string[], b: string[]): boolean {
   return true;
 }
 
+const SPLIT_LS_KEY = 'privacy-policy-editor:split-ratio';
+const SPLIT_MIN = 0.2;
+const SPLIT_MAX = 0.8;
+
+function loadSplitRatio(): number {
+  const saved = localStorage.getItem(SPLIT_LS_KEY);
+  const n = saved ? parseFloat(saved) : NaN;
+  return Number.isFinite(n) && n >= SPLIT_MIN && n <= SPLIT_MAX ? n : 0.5;
+}
+
 export default function App() {
   const [doc, setDoc] = useState<Doc | null>(null);
   const [fileName, setFileName] = useState<string>('edited.json');
   const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | undefined>();
   const [docMeta, setDocMeta] = useState<DocMeta | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [splitRatio, setSplitRatio] = useState<number>(loadSplitRatio);
+  const panelsRef = useRef<HTMLDivElement>(null);
+  const draggingSplit = useRef(false);
 
   const load = useCallback(
     async (name: string, file: File, handle?: FileSystemFileHandle) => {
@@ -65,9 +77,40 @@ export default function App() {
   );
 
   /**
+   * dev 전용: 코드로 Doc 주입하는 훅. File System Access API 를 흉내낼 수 없는
+   * Playwright 자동화·수동 console 테스트 용도. 프로덕션 빌드에선 설치되지 않음.
+   *   window.__loadDoc(jsonString, name?)
+   *   window.__loadDoc(docObject,  name?)
+   */
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const w = window as unknown as {
+      __loadDoc?: (data: string | Doc, name?: string) => void;
+    };
+    w.__loadDoc = (data, name = 'dev.json') => {
+      const parsed = typeof data === 'string' ? (JSON.parse(data) as Doc) : data;
+      if (!parsed.headers || !parsed.contents) {
+        console.error('[__loadDoc] headers / contents 배열 없음');
+        return;
+      }
+      setDoc(parsed);
+      setFileName(name);
+      setFileHandle(undefined);
+      setDocMeta({
+        source: 'json',
+        fileName: name,
+        info: buildDocInfo(parsed),
+        autoFixes: [],
+        issues: validateDoc(parsed),
+      });
+    };
+    return () => { delete w.__loadDoc; };
+  }, []);
+
+  /**
    * 실시간 재검증 — 에디터 편집 시 debounce(400ms) 후 `issues` 재계산.
    * `autoFixes` 는 파싱 시점 스냅샷이므로 건드리지 않음.
-   * 사용자가 배너를 닫았다면(docMeta=null) 되살리지 않음.
+   * docMeta 가 null (파일 로드 전) 이면 스킵.
    */
   useEffect(() => {
     if (!doc || !docMeta) return;
@@ -90,6 +133,40 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc]);
 
+  // 패널 스플리터 드래그. window 레벨 리스너로 mouseup/leave 이탈 방지.
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!draggingSplit.current || !panelsRef.current) return;
+      const rect = panelsRef.current.getBoundingClientRect();
+      const raw = (e.clientX - rect.left) / rect.width;
+      const ratio = Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, raw));
+      setSplitRatio(ratio);
+    };
+    const onUp = () => {
+      if (!draggingSplit.current) return;
+      draggingSplit.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(SPLIT_LS_KEY, String(splitRatio));
+  }, [splitRatio]);
+
+  const onSplitMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    draggingSplit.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
   const onDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
@@ -99,18 +176,25 @@ export default function App() {
     load(f.name, f);
   };
 
+  const panelsStyle = doc
+    ? { gridTemplateColumns: `${splitRatio}fr 8px ${1 - splitRatio}fr`, gap: 0 }
+    : undefined;
+
   return (
     <div className="app">
       <Toolbar
         doc={doc}
         fileName={fileName}
         fileHandle={fileHandle}
+        docMeta={docMeta}
         onLoad={load}
         onHandleChange={setFileHandle}
       />
 
       <div
+        ref={panelsRef}
         className="panels"
+        style={panelsStyle}
         onDragEnter={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
@@ -127,23 +211,26 @@ export default function App() {
           <>
             <div className="panel" id="editorPanel">
               <div className="panel-header">
-                <span>편집 (좌)</span>
-                <small className="text-muted" style={{ fontWeight: 'normal' }}>
-                  실시간 미리보기 연동
-                </small>
+                <span>편집</span>
               </div>
               <div className="panel-body">
                 <Editor doc={doc} onChange={setDoc} />
               </div>
             </div>
+            <div
+              className="split-handle"
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="패널 너비 조절"
+              onMouseDown={onSplitMouseDown}
+              onDoubleClick={() => setSplitRatio(0.5)}
+              title="드래그하여 너비 조절 · 더블클릭으로 50:50 복원"
+            />
             <div className="panel" id="previewPanel">
               <div className="panel-header preview-header">
                 <span className="doc-title">개인정보 처리방침</span>
                 <small className="text-muted" style={{ fontWeight: 'normal' }}>미리보기</small>
               </div>
-              {docMeta && (
-                <DocBanner meta={docMeta} onDismiss={() => setDocMeta(null)} />
-              )}
               <div className="panel-body">
                 <Preview doc={doc} />
               </div>

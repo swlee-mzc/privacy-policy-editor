@@ -27,7 +27,12 @@ export function Preview({ doc }: Props) {
           if (!t) return `<div ${attrs} class="empty-line"></div>`;
           if (t.startsWith('<table')) return `<div ${attrs}>${line}</div>`;
           const withBr = newlineToBr(line);
+          // 뎁스 래퍼(`<p class='ml-4'>…</p>`) 또는 이미 블록태그로 시작하는 라인은
+          // `<p>` 중첩을 피하기 위해 `<div>` 래퍼로 감싼다.
           if (
+            t.startsWith('<p ') ||
+            t.startsWith('<p>') ||
+            t.startsWith('<div') ||
             t.startsWith('<b>') ||
             /^[①②③④⑤⑥⑦⑧⑨⑩]/.test(t) ||
             /^[ⅰⅱⅲⅳⅴ]\)/.test(t) ||
