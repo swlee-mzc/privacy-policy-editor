@@ -19,6 +19,7 @@ import {
 } from 'docx';
 import type { Doc, Section, TableData } from '../../types';
 import { parseTable } from '../table';
+import { getDepth, unwrapDepth, DEPTH_REM } from '../depth';
 
 /**
  * @param title 문서 최상단 센터 정렬 제목. 생략 시 KO/JA/EN 첫 섹션 제목 패턴을
@@ -81,26 +82,35 @@ function sectionToDocx(section: Section): (Paragraph | Table)[] {
   for (const line of section.lines || []) {
     const t = line.trim();
     if (!t) continue;
-    if (t.startsWith('<table')) {
-      const parsed = parseTable(line);
+    const depth = getDepth(line);
+    const inner = depth > 0 ? unwrapDepth(line).trim() : line;
+    const indentLeft = depth > 0 ? remToTwips(DEPTH_REM[depth as Exclude<typeof depth, 0>]) : undefined;
+    if (inner.startsWith('<table')) {
+      const parsed = parseTable(inner);
       if (parsed) {
-        out.push(tableDataToDocx(parsed));
+        out.push(tableDataToDocx(parsed, indentLeft));
       } else {
-        out.push(paragraphFromLine(line));
+        out.push(paragraphFromLine(inner, indentLeft));
       }
     } else {
-      out.push(paragraphFromLine(line));
+      out.push(paragraphFromLine(inner, indentLeft));
     }
   }
 
   return out;
 }
 
-function paragraphFromLine(line: string): Paragraph {
+/** BS4 rem → DOCX twips. (1rem ≈ 240 twips, 1 inch = 1440 twips) */
+function remToTwips(rem: number): number {
+  return Math.round(rem * 240);
+}
+
+function paragraphFromLine(line: string, indentLeft?: number): Paragraph {
   const runs = htmlToRuns(line);
   return new Paragraph({
     children: runs.length > 0 ? runs : [new TextRun('')],
     spacing: { after: 120 },
+    indent: indentLeft !== undefined ? { left: indentLeft } : undefined,
   });
 }
 
@@ -168,7 +178,7 @@ function decodeEntities(s: string): string {
 const BORDER = { style: BorderStyle.SINGLE, size: 4, color: 'BBBBBB' };
 const SECONDARY_SHADING = { type: ShadingType.CLEAR, color: 'auto', fill: 'E9ECEF' };
 
-function tableDataToDocx(data: TableData): Table {
+function tableDataToDocx(data: TableData, indentLeft?: number): Table {
   const rows: TableRow[] = data.rows.map((row) => {
     const cells: TableCell[] = row.cells.map((c) => {
       const isSecondary =
@@ -184,12 +194,13 @@ function tableDataToDocx(data: TableData): Table {
         margins: { top: 80, bottom: 80, left: 100, right: 100 },
       });
     });
-    return new TableRow({ children: cells });
+    return new TableRow({ children: cells, tableHeader: row.isHead });
   });
 
   return new Table({
     rows,
     width: { size: 100, type: WidthType.PERCENTAGE },
+    indent: indentLeft !== undefined ? { size: indentLeft, type: WidthType.DXA } : undefined,
     borders: {
       top: BORDER,
       bottom: BORDER,

@@ -1,4 +1,5 @@
 import type { Doc } from '../types';
+import { getDepth, unwrapDepth } from './depth';
 
 /** JSON 문자열로 직렬화 */
 export function toJson(doc: Doc): string {
@@ -23,10 +24,14 @@ export function toMarkdown(doc: Doc): string {
     (section.lines || []).forEach((line) => {
       const t = line.trim();
       if (!t) return;
-      if (t.startsWith('<table')) {
-        out.push(tableHtmlToMarkdown(line), '');
+      const depth = getDepth(line);
+      const inner = depth > 0 ? unwrapDepth(line).trim() : line;
+      const pad = depth > 0 ? '  '.repeat(depth) : '';
+      if (inner.startsWith('<table')) {
+        const md = tableHtmlToMarkdown(inner);
+        out.push(pad ? md.split('\n').map((l) => pad + l).join('\n') : md, '');
       } else {
-        out.push(stripTags(line), '');
+        out.push(pad + stripTags(inner), '');
       }
     });
   });

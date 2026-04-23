@@ -95,6 +95,34 @@ export function paragraphAlign(p: Node): string | null {
 }
 
 /**
+ * 단락 좌측 들여쓰기(twips). `w:pPr > w:ind w:left`(또는 RTL 문서의 `w:start`).
+ * 값이 없거나 파싱 실패 시 0. export.ts 가 `w:ind w:left` 로 쓰므로 대칭.
+ */
+export function paragraphIndentTwips(p: Node): number {
+  const ppr = findFirst(getChildren(p), 'w:pPr');
+  if (!ppr) return 0;
+  const ind = findFirst(getChildren(ppr), 'w:ind');
+  if (!ind) return 0;
+  const a = getAttrs(ind);
+  const raw = a['w:left'] ?? a['w:start'];
+  if (!raw) return 0;
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** `w:tbl > w:tblPr > w:tblInd w:w` 의 twips. table 단위 들여쓰기. */
+export function tableIndentTwips(tbl: Node): number {
+  const tblPr = findFirst(getChildren(tbl), 'w:tblPr');
+  if (!tblPr) return 0;
+  const tblInd = findFirst(getChildren(tblPr), 'w:tblInd');
+  if (!tblInd) return 0;
+  const raw = getAttrs(tblInd)['w:w'];
+  if (!raw) return 0;
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/**
  * 단락 내 헤딩 부분이 bold 인지 판정.
  * 시맨틱 헤딩(조 제목) 판정용 — 텍스트 패턴은 맞지만 굵기가 빠진 단락은
  * 본문으로 강등하고 lint 로 표면화한다.

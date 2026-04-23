@@ -302,6 +302,50 @@ export function validateTableGrid(data: TableData): string[] {
   return issues;
 }
 
+/**
+ * 모든 행 끝에 빈 셀을 1개씩 추가. 격자 너비가 1 늘어난다.
+ * - thead 행은 th, tbody 행은 td 로 채운다.
+ * - 이전 행의 rowspan 이 흡수한 위치에는 셀을 넣지 않으므로 (배열 길이가 행마다 다를 수 있음)
+ *   단순히 각 행의 `cells.push(empty)` 로 끝난다.
+ */
+export function addColumn(data: TableData): TableData {
+  const rows = data.rows.map((row) => ({
+    ...row,
+    cells: [...row.cells, emptyCellLike(row.isHead ? 'th' : 'td')],
+  }));
+  return { ...data, rows };
+}
+
+/**
+ * 마지막 격자 열 제거. colspan>1 인 셀이 걸쳐 있으면 colspan 1 감소, 아니면 셀 삭제.
+ * 격자 너비가 1 이하면 null 반환 (최소 1열 유지).
+ */
+export function removeLastColumn(data: TableData): TableData | null {
+  const grid = buildTableGrid(data.rows);
+  if (grid.width <= 1) return null;
+  const lastCol = grid.width - 1;
+
+  const newRows: TableRow[] = data.rows.map((row) => ({
+    ...row,
+    cells: [...row.cells],
+  }));
+  const handled = new Set<string>();
+  for (let r = 0; r < newRows.length; r++) {
+    const g = grid.cells[r]?.[lastCol];
+    if (!g) continue;
+    const key = `${g.rowIdx}:${g.cellIdx}`;
+    if (handled.has(key)) continue;
+    handled.add(key);
+    const cell = newRows[g.rowIdx].cells[g.cellIdx];
+    if (cell.colspan > 1) {
+      newRows[g.rowIdx].cells[g.cellIdx] = { ...cell, colspan: cell.colspan - 1 };
+    } else {
+      newRows[g.rowIdx].cells.splice(g.cellIdx, 1);
+    }
+  }
+  return { ...data, rows: newRows };
+}
+
 export function cloneLastBodyRow(data: TableData): TableRow | null {
   for (let i = data.rows.length - 1; i >= 0; i--) {
     const r = data.rows[i];

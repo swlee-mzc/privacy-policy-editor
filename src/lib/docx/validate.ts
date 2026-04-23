@@ -36,21 +36,48 @@ export type Issue = {
   refs: IssueRef[];
 };
 
-/** 본문 줄 앞머리에 쓰인 번호 스타일 패턴. 문서 내 혼재 감지용. */
+/**
+ * 본문 줄 앞머리에 쓰인 번호 스타일 패턴. 문서 내 혼재 감지용.
+ *
+ * 혼재 판정은 **구조적 들여쓰기 깊이(`ml-N` 래퍼)** 가 같은 줄들 사이에서만 수행된다.
+ * 깊이가 다르면 스타일이 달라도 계층 분리가 자연스러운 상황이라 정상으로 본다.
+ * 예: ml-2 에 `1./2./3.`, ml-3 에 `①②` 또는 `1)2)3)`, ml-4 에 `ⅰ)ⅱ)` 가 섞여도
+ * 같은 ml-N 안에서만 일관되면 OK.
+ */
 const NUMBER_STYLES: { name: string; re: RegExp }[] = [
   { name: '①②③ (원문자)', re: /^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/ },
-  { name: '(1) (전괄호)', re: /^\(\d+\)\s/ },
-  { name: '1) (반괄호)', re: /^\d+\)\s/ },
   { name: '1. (마침표)', re: /^\d+\.\s/ },
   { name: '가. (한글)', re: /^[가-힣]\.\s/ },
+  { name: 'Ⅰ. (로마대마침표)', re: /^[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ]\./ },
+  { name: '(1) (전괄호)', re: /^\(\d+\)\s/ },
+  { name: '1) (반괄호)', re: /^\d+\)\s/ },
+  { name: '가) (한글반괄)', re: /^[가-힣]\)/ },
   { name: 'ⅰ) (로마소)', re: /^[ⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ]\)/ },
   { name: 'Ⅰ) (로마대)', re: /^[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ]\)/ },
 ];
 
-function detectNumberStyle(line: string): string | null {
-  const probe = stripStrike(line).trimStart();
-  for (const { name, re } of NUMBER_STYLES) {
-    if (re.test(probe)) return name;
+/**
+ * 뎁스 래퍼(`<p|div class='ml-1..5'>…</p|div>`) 의 내부 텍스트를 벗겨낸다.
+ * 번호 스타일은 "래퍼를 벗긴 원문" 기준으로 감지되어야 한다.
+ */
+const DEPTH_WRAPPER_RE = /^<(p|div)\s+class=['"]ml-[1-5]['"]\s*>([\s\S]*)<\/\1>$/;
+const DEPTH_CLASS_RE = /class=['"]ml-([1-5])['"]/;
+
+/**
+ * 번호 스타일과 **구조적 들여쓰기 깊이** (`ml-N` 의 N, 래퍼 없으면 0)를 반환.
+ * 혼재 검사는 동일 depth 내에서만 수행되므로 여기서 depth 도 함께 내보낸다.
+ */
+function detectNumberStyle(line: string): { name: string; depth: number } | null {
+  let probe = stripStrike(line).trim();
+  let depth = 0;
+  const wrap = DEPTH_WRAPPER_RE.exec(probe);
+  if (wrap) {
+    const m = DEPTH_CLASS_RE.exec(probe);
+    if (m) depth = parseInt(m[1], 10);
+    probe = wrap[2].trimStart();
+  }
+  for (const entry of NUMBER_STYLES) {
+    if (entry.re.test(probe)) return { name: entry.name, depth };
   }
   return null;
 }
@@ -187,25 +214,33 @@ export function validateDoc(doc: Doc): Issue[] {
 
   const origins = collectLineOrigins(doc);
 
-  // (6) 번호 스타일 혼재
-  const styleUse = new Map<string, number>();
+  // (6) 번호 스타일 혼재 — **같은 구조적 들여쓰기 깊이(ml-N)** 내에서만 체크.
+  //   서로 다른 깊이의 스타일이 한 문서에 공존하는 것은 정상 (하위 트리 번호매김).
+  //   예: ml-2 `1.` / ml-3 `①②` 또는 `1)` / ml-4 `ⅰ)` 는 정상.
+  //   같은 ml-N 안에서 `1.` 과 `①` 이 섞이면 outlier 로 표시.
+  const stylesByDepth = new Map<number, Map<string, number>>();
   for (const o of origins) {
     if (o.text.startsWith('<table')) continue;
     const s = detectNumberStyle(o.text);
-    if (s) styleUse.set(s, (styleUse.get(s) || 0) + 1);
+    if (!s) continue;
+    if (!stylesByDepth.has(s.depth)) stylesByDepth.set(s.depth, new Map());
+    const m = stylesByDepth.get(s.depth)!;
+    m.set(s.name, (m.get(s.name) || 0) + 1);
   }
-  if (styleUse.size >= 2) {
-    const sortedStyles = [...styleUse.entries()].sort((a, b) => b[1] - a[1]);
+  for (const [depth, styles] of stylesByDepth) {
+    if (styles.size < 2) continue;
+    const sortedStyles = [...styles.entries()].sort((a, b) => b[1] - a[1]);
     const [majorityStyle] = sortedStyles[0];
     const styleRefs: IssueRef[] = [];
     for (const o of origins) {
       if (o.text.startsWith('<table')) continue;
       const s = detectNumberStyle(o.text);
-      if (s && s !== majorityStyle) styleRefs.push(refForLine(o));
+      if (s && s.depth === depth && s.name !== majorityStyle) styleRefs.push(refForLine(o));
     }
     const list = sortedStyles.map(([s, n]) => `${s} ${n}건`).join(', ');
+    const depthLabel = depth === 0 ? '최상위(래퍼 없음)' : `ml-${depth}`;
     issues.push({
-      message: `번호 스타일이 일관되지 않습니다: ${list}. 다수(${majorityStyle}) 외 outlier 위치를 표시.`,
+      message: `${depthLabel} 깊이의 번호 스타일이 일관되지 않습니다: ${list}. 다수(${majorityStyle}) 외 outlier 위치를 표시.`,
       refs: styleRefs,
     });
   }

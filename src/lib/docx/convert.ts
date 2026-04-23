@@ -16,13 +16,16 @@ import type { NumMap } from './numbering';
 import { NumberingState } from './numbering';
 import {
   paragraphAlign,
+  paragraphIndentTwips,
   paragraphNumInfo,
   paragraphText,
   stripStrike,
+  tableIndentTwips,
 } from './paragraph';
 import { tableToHtml } from './table-emit';
 import type { NormalizeCounters } from './normalize';
 import { normalizeLine } from './normalize';
+import { twipsToDepth, wrapDepth } from '../depth';
 
 /** `<w:br/>` 로 인해 텍스트에 `<br>` 이 섞여 들어온 경우 여러 라인으로 분리.
  *  셀 내부가 아닌 본문 단락/sec.rest 용. */
@@ -116,8 +119,10 @@ export function convert(docXml: string, numMap: NumMap): ConvertResult {
           headingLen,
         });
         if (sec.rest) {
+          // 섹션 헤딩 단락에 본문이 붙어있는 경우. 헤딩 단락의 들여쓰기를 그대로 적용.
+          const depth = twipsToDepth(paragraphIndentTwips(child));
           for (const rest of splitBrToLines(sec.rest, normalizeCounters)) {
-            current.lines.push(rest);
+            current.lines.push(depth ? wrapDepth(rest, depth) : rest);
           }
         }
         continue;
@@ -131,15 +136,21 @@ export function convert(docXml: string, numMap: NumMap): ConvertResult {
       // 번호 접두사는 첫 라인에만 붙이고 재정규화(접두사 자체에 스마트따옴표 없음).
       if (prefix) lines[0] = normalizeLine(prefix + lines[0], normalizeCounters);
 
+      // w:pPr > w:ind w:left (twips) → ml-N 래퍼. export 와 대칭.
+      const depth = twipsToDepth(paragraphIndentTwips(child));
       for (const line of lines) {
-        if (inIntro) headers.push(line);
-        else if (current) current.lines.push(line);
+        const wrapped = depth ? wrapDepth(line, depth) : line;
+        if (inIntro) headers.push(wrapped);
+        else if (current) current.lines.push(wrapped);
       }
     } else if (tag === 'w:tbl') {
       const html = tableToHtml(child);
       if (!html) continue;
-      if (inIntro) headers.push(html);
-      else if (current) current.lines.push(html);
+      // w:tblPr > w:tblInd w:w → ml-N 래퍼(div).
+      const depth = twipsToDepth(tableIndentTwips(child));
+      const wrapped = depth ? wrapDepth(html, depth) : html;
+      if (inIntro) headers.push(wrapped);
+      else if (current) current.lines.push(wrapped);
     }
   }
 
