@@ -19,6 +19,42 @@ body {
 }
 .toolbar .gh-link:hover { color: #212529; background: #e9ecef; }
 
+/* 저장 드롭다운 (split button) */
+.save-menu { position: relative; }
+.save-menu-split { display: inline-flex; }
+.save-menu-main {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+.save-menu-caret {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: 1px solid rgba(255, 255, 255, .35) !important;
+  padding-left: .5rem !important; padding-right: .5rem !important;
+}
+.save-menu-list {
+  position: absolute; top: calc(100% + .25rem); right: 0;
+  min-width: 240px; z-index: 50;
+  background: #fff; border: 1px solid #dee2e6; border-radius: .375rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+  padding: .25rem 0;
+  display: flex; flex-direction: column;
+}
+.save-menu-item {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 0; padding: .5rem .75rem;
+  background: transparent; border: 0; text-align: left;
+  cursor: pointer; color: #212529;
+  font-size: .82rem; line-height: 1.25;
+}
+.save-menu-item:hover:not(:disabled) { background: #f1f3f5; }
+.save-menu-item:disabled { opacity: .45; cursor: not-allowed; }
+.save-menu-item-label { font-weight: 500; }
+.save-menu-item-hint { font-size: .7rem; color: #6c757d; }
+.save-menu-sep {
+  height: 1px; background: #e9ecef; margin: .2rem 0;
+}
+
 .panels {
   flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: .5rem;
   padding: .5rem; overflow: hidden;
@@ -28,6 +64,15 @@ body {
   display: flex; flex-direction: column;
   box-shadow: 0 1px 2px rgba(0,0,0,.05);
 }
+/* 좌우 패널 리사이즈 핸들. App 의 inline gridTemplateColumns 가 8px 트랙 할당. */
+.split-handle {
+  cursor: col-resize; align-self: stretch;
+  background: transparent; border-radius: 2px;
+  margin: 2px 0;
+  transition: background .15s;
+}
+.split-handle:hover { background: #adb5bd; }
+.split-handle:active { background: #6c757d; }
 .panel-header {
   padding: .5rem .75rem; border-bottom: 1px solid #e9ecef;
   background: #f8f9fa; font-size: .875rem; font-weight: 500; color: #495057;
@@ -109,6 +154,7 @@ body {
 .ed-table th, .ed-table td {
   border: 1px solid #dee2e6; padding: 0; vertical-align: top;
   position: relative;
+  word-break: break-word; overflow-wrap: anywhere;
 }
 .ed-table tr.table-secondary th,
 .ed-table tr.table-secondary td,
@@ -119,6 +165,7 @@ body {
   border: none; padding: .35rem .4rem; font-size: .78rem;
   resize: vertical; background: transparent; font-family: inherit;
   line-height: 1.4;
+  word-break: break-word; overflow-wrap: anywhere;
 }
 .ed-table textarea:focus { background: #fffbea; outline: none; }
 .cell-span {
@@ -161,6 +208,16 @@ body {
 
 /* Preview */
 .preview { font-size: .95rem; color: #212529; background: #fff; }
+/* Bootstrap 5 `.table-bordered` 는 셀 border-width 를 0 1px 로 덮어쓰기 때문에
+   rowspan 셀의 하단 경계가 누락된다. rowspan 셀에 한해 bottom 보더 복원. */
+.preview table.table-bordered th[rowspan],
+.preview table.table-bordered td[rowspan] {
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+}
+/* 긴 URL·연속 문자열도 셀 안에서 줄바꿈. */
+.preview table th, .preview table td {
+  word-break: break-word; overflow-wrap: anywhere;
+}
 .preview-header .doc-title {
   font-size: 1rem; font-weight: 600; color: #212529;
 }
@@ -172,56 +229,100 @@ body {
 .preview .section-body > * { margin-bottom: .5rem; line-height: 1.7; }
 .preview .section-body p { margin-bottom: .5rem; }
 
-/* DOCX 변환/JSON 로드 요약 배너 (미리보기 패널 헤더 아래) */
-.doc-banner {
-  display: flex; align-items: flex-start; gap: .5rem;
-  padding: .55rem .75rem; font-size: .78rem; line-height: 1.45;
-  border-bottom: 1px solid #e9ecef;
-  background: #eef6ff; color: #084298;
+/* BS4 `ml-*` 호환 shim — 에디터는 BS5 를 쓰므로 `.ml-*` 클래스가 없다.
+   JSON 은 프로덕션 HB1(BS4) 에 맞춰 `ml-1` ~ `ml-5` 로 depth 래핑하므로
+   미리보기에서만 BS4 와 동일한 spacing 을 적용한다. (BS4·BS5 값 동일) */
+.preview .ml-1 { margin-left: 0.25rem; }
+.preview .ml-2 { margin-left: 0.5rem; }
+.preview .ml-3 { margin-left: 1rem; }
+.preview .ml-4 { margin-left: 1.5rem; }
+.preview .ml-5 { margin-left: 3rem; }
+
+/* DOCX 변환/JSON 로드 요약 — 툴바 우측 아이콘 + 클릭 팝오버 */
+.doc-info { position: relative; }
+.doc-info-btn {
+  position: relative;
+  border: 1px solid transparent; background: transparent;
+  color: #6c757d; cursor: pointer;
+  width: 30px; height: 30px;
+  border-radius: .25rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1rem; line-height: 1;
+}
+.doc-info-btn:hover { background: #e9ecef; color: #212529; }
+.doc-info-btn.warn { color: #b07800; }
+.doc-info-btn.warn:hover { background: #fff3cd; color: #664d03; }
+.doc-info-btn.ok { color: #198754; }
+.doc-info-btn.ok:hover { background: #d1e7dd; color: #0f5132; }
+.doc-info-badge {
+  position: absolute; top: -2px; right: -2px;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  background: #dc3545; color: #fff;
+  border-radius: 8px; font-size: .6rem; font-weight: 700;
+  line-height: 16px; text-align: center;
+  box-shadow: 0 0 0 1.5px #fff;
+}
+
+.doc-info-pop {
+  position: absolute; top: calc(100% + .3rem); right: 0;
+  width: 380px; max-width: 90vw; max-height: 65vh;
+  overflow-y: auto; z-index: 60;
+  background: #fff; border: 1px solid #dee2e6; border-radius: .375rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15);
+  padding: .6rem .75rem;
+  font-size: .78rem; line-height: 1.45; color: #212529;
   border-left: 3px solid #0d6efd;
 }
-.doc-banner.warn {
-  background: #fff7e0; color: #664d03; border-left-color: #ffc107;
+.doc-info-pop.warn { border-left-color: #ffc107; }
+.doc-info-pop.ok { border-left-color: #198754; }
+.doc-info-pop-empty {
+  color: #198754; font-weight: 500;
 }
-.doc-banner-body { flex: 1; min-width: 0; }
-.doc-banner-title { font-weight: 600; }
-.doc-banner-title .doc-banner-file {
+
+.doc-info-pop-head {
+  display: flex; align-items: flex-start; gap: .5rem;
+  margin-bottom: .2rem;
+}
+.doc-info-pop-title { font-weight: 600; flex: 1; min-width: 0; }
+.doc-info-pop-file {
   font-weight: normal; margin-left: .4rem; color: #6c757d;
   word-break: break-all;
 }
-.doc-banner-info { color: #495057; margin-top: .1rem; }
-.doc-banner.warn .doc-banner-info { color: #6c5a1a; }
-.doc-banner-issues {
-  margin: .2rem 0 0; padding-left: 1.1rem;
-}
-.doc-banner-issues li { margin-bottom: .1rem; }
-.doc-banner-section { margin-top: .4rem; }
-.doc-banner-section-title {
+.doc-info-pop-info { color: #495057; margin-bottom: .3rem; }
+.doc-info-pop-section { margin-top: .5rem; }
+.doc-info-pop-section-title {
   font-weight: 600; font-size: .75rem; opacity: .85;
+  margin-bottom: .2rem;
 }
-.doc-banner-autofix { opacity: .8; }
-.doc-banner-autofix .doc-banner-section-title::before { content: '✓ '; }
-.doc-banner.warn .doc-banner-autofix {
-  color: #495057;
+.doc-info-pop-autofix { opacity: .85; }
+.doc-info-pop-autofix .doc-info-pop-section-title::before { content: '✓ '; }
+.doc-info-pop-issues {
+  margin: 0; padding-left: 1.1rem;
 }
+.doc-info-pop-issues li { margin-bottom: .2rem; }
 
-.doc-banner-refs {
+.doc-info-pop-refs {
   display: flex; flex-wrap: wrap; gap: .25rem;
   margin-top: .2rem;
 }
-.doc-banner-ref {
+.doc-info-pop-ref {
   border: 1px solid rgba(0,0,0,.15);
-  background: rgba(255,255,255,.75);
-  color: inherit;
+  background: #f8f9fa; color: inherit;
   font: inherit; font-size: .7rem; line-height: 1.4;
   padding: .05rem .4rem; border-radius: .7rem;
   cursor: pointer;
 }
-.doc-banner-ref:hover {
-  background: #fff; border-color: rgba(0,0,0,.3);
-}
+.doc-info-pop-ref:hover { background: #fff; border-color: rgba(0,0,0,.35); }
 
-/* 이슈 ref 클릭 시 짧게 반짝. */
+.doc-info-pop-close {
+  border: 0; background: transparent; color: #6c757d;
+  cursor: pointer; font-size: .85rem; padding: 0 .3rem;
+  line-height: 1; opacity: .6; flex-shrink: 0;
+}
+.doc-info-pop-close:hover { opacity: 1; color: #212529; }
+
+/* 이슈 ref 클릭 시 짧게 반짝. 외부 div 플래시는 BS 테이블 셀 배경에 가려지므로
+   셀(td/th) 에도 같은 애니메이션을 연쇄 적용. */
 @keyframes flash-bg {
   0%   { background-color: rgba(255, 235, 59, .55); }
   100% { background-color: transparent; }
@@ -231,12 +332,10 @@ body {
   scroll-margin-top: 1rem;
   scroll-margin-bottom: 1rem;
 }
-.doc-banner-close {
-  border: 0; background: transparent; color: inherit;
-  cursor: pointer; font-size: .9rem; padding: 0 .3rem;
-  line-height: 1; opacity: .6;
+.flash-highlight td,
+.flash-highlight th {
+  animation: flash-bg 1.6s ease-out;
 }
-.doc-banner-close:hover { opacity: 1; }
 
 /* Help drawer */
 .help-drawer-backdrop {
