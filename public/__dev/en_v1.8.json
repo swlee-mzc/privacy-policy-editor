@@ -1,0 +1,149 @@
+{
+  "headers": [
+    "We at MegazoneCloud Corp. (hereinafter referred to as 'We' or the 'Company') are committed to protecting users' personal information and rights relating to our Hyper Billing service (billing.mzc.megazone.com). We comply with relevant laws, including the Personal Information Protection Act, to effectively address any concerns about users' personal information. Through this Privacy Policy, we explain our procedures and standards for processing personal information and methods for handling complaints, making any changes easily identifiable through version management."
+  ],
+  "contents": [
+    {
+      "title": "Article 1 (Purpose of Processing Personal Information)",
+      "lines": [
+        "We may process users' personal information for the following purposes.",
+        "The personal information being processed will not be used for any purpose other than the following purposes, and if the purpose of use changes, we will take necessary measures, such as obtaining separate consent in accordance with the Personal Information Protection Act.",
+        "<p class='ml-2'>1. Purpose of Processing Personal Information</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Category</th><th>Purpose of Processing</th></tr></thead><tbody><tr><td>Use of Hyper Billing Service</td><td>To create users' Hyper Billing accounts, provide cloud service usage data, billing details, support payment reporting, and process AWS customer billing</td></tr></tbody></table></div>"
+      ]
+    },
+    {
+      "title": "Article 2 (Items of Personal Information Collected)",
+      "lines": [
+        "The company collects and uses personal information only to the minimum extent necessary for service provision.",
+        "<p class='ml-2'>1. Items of Personal Information Processed with the User's Consent</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Category</th><th>Items Collected</th><th>Collection Time</th></tr></thead><tbody><tr><td>Membership Management</td><td>[Required] ID (email), name, company name</td><td>When using the HyperBilling service</td></tr></tbody></table></div>",
+        "<p class='ml-2'>2. Information Automatically Collected During Service Use</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Category</th><th>Items Collected</th><th>Collection Time</th></tr></thead><tbody><tr><td>Automatically Generated Information</td><td>IP address, cookies, service usage records, visit history, records of improper use, etc.</td><td>Automatically generated during service use</td></tr></tbody></table></div>",
+        "<p class='ml-2'>3. The company does not collect personal information from children under the age of 14.</p>"
+      ]
+    },
+    {
+      "title": "Article 3 (Processing and Retention Period of Personal Information)",
+      "lines": [
+        "We retain and process users' personal information for the period specified by law or agreed upon when users provide their information.",
+        "<p class='ml-2'>1. Personal Information Retention and Usage Period</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Category</th><th>Retention Period</th></tr></thead><tbody><tr><td>Service member management, tax invoice issuance, Hyper Billing service processing and inquiries</td><td>Until 5 years after contract expiration or until membership withdrawal(However, in the case of resignation or customer account deletion request, until that time.)</td></tr></tbody></table></div>",
+        "<p class='ml-2'>※In accordance with relevant laws and regulations, information may be used and retained for the legally mandated period if necessary.</p>",
+        "<p class='ml-2'>2. Retention Period Required by Law for Providing Goods or Services</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Category</th><th>Related Law</th><th>Retention Period</th></tr></thead><tbody><tr><td>Contract or subscription withdrawal records</td><td rowspan='4'>Act on Consumer Protection in Electronic Commerce, etc.</td><td>5 years</td></tr><tr><td>Payment and supply records</td><td>5 years</td></tr><tr><td>Customer complaint and dispute records</td><td>3 years</td></tr><tr><td>Marketing and advertising records</td><td>6 months</td></tr><tr><td>Books and evidential documents related to all transactions specified by tax laws</td><td>Framework Act on National Taxes</td><td>5 years</td></tr><tr><td>Record of Electronic Financial Transactions</td><td>Electronic Financial Transactions Act</td><td>5 years</td></tr><tr><td>Records of identity verification</td><td>Act on Promotion of Information and Communication Network Utilization and Information Protection, etc</td><td>6 months</td></tr><tr><td>Records of Visit</td><td>Protection of Communications Secrets Act</td><td>3 months</td></tr></tbody></table></div>",
+        "<p class='ml-2'>3. Account Dormancy Policy</p>",
+        "<p class='ml-3'>① If a user has not used the service for more than one year, their registration information will be deactivated for security reasons. The account can be reactivated upon separate request.</p>",
+        "<p class='ml-3'>② Users will be notified 30 days prior to the expiration period that their personal data will be deactivated, via one of the following methods: email, written notice, fax, phone call, or other similar means.</p>",
+        "<div class='ml-3'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Receiving and Processing Department</th></tr></thead><tbody><tr><td>Department: MZC Billing Team<br>Email:mzc_grp_billing@megazone.com</td></tr></tbody></table></div>"
+      ]
+    },
+    {
+      "title": "Article 4 (Entrustment and Overseas Transfer of Personal Information)",
+      "lines": [
+        "<p class='ml-2'>1. Details of Personal Information Entrustment Tasks</p>",
+        "<p class='ml-2'>The company entrusts some of the personal information processing tasks necessary for service provision to external companies. The company manages and supervises the entrusted company so that it does not violate relevant laws.</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Entrusted Company</th><th>Details of Entrustment Tasks</th><th>Retention and Usage Period</th></tr></thead><tbody><tr><td>Amazon Web Services, Inc</td><td>Data storage and infrastructure management</td><td>5 years after contract termination and until membership withdrawal, or until the end of the consignment agreement</td></tr><tr><td>KG Mobilians</td><td>Online electronic payment processing (credit card)</td><td>5 years after contract termination and until membership withdrawal, or until the end of the consignment agreement</td></tr></tbody></table></div>",
+        "<p class='ml-2'>※ If there is a need to preserve the information according to the provisions of relevant laws, it will be used and stored for the corresponding period.</p>",
+        "<p class='ml-2'>2. 5 years after membership withdrawal or contract termination, or until the end of the consignment agreement</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Entrusted Company</th><th>Re-entrusted Company</th><th>Details of Re-entrusted Tasks</th></tr></thead><tbody><tr><td>Amazon Web Services, Inc</td><td>-</td><td>-</td></tr><tr><td>KG Mobilians</td><td>-</td><td>-</td></tr></tbody></table></div>",
+        "<p class='ml-2'>3. When entering into a consignment agreement, the company specifies in documents such as contracts matters concerning the prohibition of processing personal information beyond the scope of the consignment purpose, security measures, restrictions on re-entrustment, management and supervision of the entrusted party, and liability for damages in accordance with the Personal Information Protection Act. The company also supervises whether the entrusted party is handling personal information safely.</p>",
+        "<p class='ml-2'>4. If the content of the entrusted tasks or the entrusted company changes, such changes will be disclosed through this Privacy Policy without delay.</p>"
+      ]
+    },
+    {
+      "title": "Article 5 (Provision of Personal Information to Third Parties)",
+      "lines": [
+        "The company processes users' personal information only within the scope specified in \"Article 1 (Purpose of Processing Personal Information)\" and does not provide it to third parties. If it becomes necessary to do so in the future, we will obtain users' consent and provide it to third parties in accordance with lawful procedures, including special provisions of law."
+      ]
+    },
+    {
+      "title": "Article 6 (Destruction Procedure and Method of Personal Information)",
+      "lines": [
+        "The company destroys the relevant information without delay when personal information becomes unnecessary, such as upon the expiration of the retention period or the achievement of the processing purpose.",
+        "<p class='ml-2'>1. If the retention period of personal information agreed by the user has expired or the purpose of processing has been achieved, but it is necessary to continue preserving the personal information according to other laws, the personal information is transferred to a separate database (DB) or stored in a different location.</p>",
+        "<p class='ml-2'>2. The procedure and method for destroying personal information are as follows:</p>",
+        "<p class='ml-3'>1) Destruction Procedure: The company selects personal information for which the reason for destruction has occurred and destroys it after obtaining approval from the Personal Information Protection Officer.</p>",
+        "<p class='ml-3'>2) Destruction Method: Personal information recorded and stored in electronic file form is destroyed so that the records cannot be reproduced, and personal information recorded and stored in paper documents is destroyed by shredding or incinerating.</p>"
+      ]
+    },
+    {
+      "title": "Article 7 (Measures to Ensure the Safety of Personal Information)",
+      "lines": [
+        "The company takes the following measures to ensure the safety of personal information:",
+        "<p class='ml-2'>1. Administrative Measures : Establishment and implementation of an internal management plan, operation of dedicated organizations, regular employee training, etc.</p>",
+        "<p class='ml-2'>2. Technical Measures: Management of access rights to personal information processing systems, storage of access records and prevention of forgery and alteration, encryption of personal information, installation of security programs, etc.</p>",
+        "<p class='ml-2'>3. Physical Measures : Establishment and operation of access control procedures for computer rooms and data storage rooms</p>"
+      ]
+    },
+    {
+      "title": "Article 8 (Installation, Operation, and Refusal of Automatic Personal Information Collection Devices)",
+      "lines": [
+        "<p class='ml-2'>1. The company uses 'cookies' to store and frequently retrieve usage information to provide users with personalized services.</p>",
+        "<p class='ml-2'>2. Cookies are small pieces of information that a website server sends to a user's computer browser, which may be stored on the user's PC hard disk.</p>",
+        "<p class='ml-3'>① Purpose of Using Cookies</p>",
+        "<p class='ml-3'>Cookies are used to identify the user's visit and usage patterns, popular search terms, secure access, etc., and to provide optimized information to the user.</p>",
+        "<p class='ml-3'>② Installation, Operation, and Refusal of Cookies</p>",
+        "<p class='ml-3'>Users can refuse to store cookies by setting options in the web browser's privacy menu.</p>",
+        "<p class='ml-3'>③ How to Set Up Cookie Refusal</p>",
+        "<p class='ml-4'>ⅰ) Microsoft Edge: Select \"Settings\" > \"Site permissions\" tab > \"Cookies and site data\" settings</p>",
+        "<p class='ml-4'>ⅱ) Chrome: Select \"Settings\" > \"Show advanced settings\" > \"Privacy and Security\" > \"Content settings\" > Configure cookie level</p>",
+        "<p class='ml-4'>ⅲ) Safari: Select \"Preferences\" > \"Privacy\" tab > Set cookie and website data level</p>",
+        "<p class='ml-4'>ⅳ) Microsoft Edge (latest): Go to \"Settings\" > \"Cookies and site permissions\" > \"Manage and delete cookies and site data\" > Configure cookie level</p>"
+      ]
+    },
+    {
+      "title": "Article 9 (Personal Information Protection Officer and Department in Charge)",
+      "lines": [
+        "The company designates the following Personal Information Protection Officer and department in charge to take overall responsibility for personal information processing and to handle users' complaints and remedies related to personal information. The company also takes the following measures to ensure the safety of personal information.",
+        "<p class='ml-2'>1. Personal Information Protection Officer and Department in Charge</p>",
+        "<div class='ml-2'><table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Personal Information Protection Officer</th><th>Department in Charge of Personal Information Protection</th></tr></thead><tbody><tr><td>Full Name: Yang Jae-seung<br>Position: Managing Director<br>Phone Number: 1644-7378</td><td>Department: IRM<br>Phone Number: 1644-7378<br>Email: irm@mz.co.kr</td></tr></tbody></table></div>",
+        "<p class='ml-2'>2. Users may contact the Personal Information Protection Officer or the department in charge for any inquiries, complaints, or remedies related to personal information protection arising from the use of the company's services (or business). We will respond without delay.</p>"
+      ]
+    },
+    {
+      "title": "Article 10 (Users' Rights and How to Exercise Them)",
+      "lines": [
+        "<p class='ml-2'>1. Users may exercise the following rights regarding their personal information at any time with respect to the company.</p>",
+        "<p class='ml-3'>① Request access to personal information</p>",
+        "<p class='ml-3'>② Request corrections of any errors</p>",
+        "<p class='ml-3'>③ Request deletion</p>",
+        "<p class='ml-3'>④ Request processing suspension</p>",
+        "<p class='ml-2'>2. The rights under Paragraph 1 may be exercised through the department listed below for handling personal information access requests, and the company will take prompt action accordingly.</p>",
+        "<p class='ml-2'>3. If users request correction or deletion of information, we will not use or share that information until the request is completed.</p>",
+        "<p class='ml-2'>4. The rights under Paragraph 1 may be exercised through the department listed below for handling personal information access requests, and the company will take prompt action accordingly.</p>",
+        "<p class='ml-2'>5. Requests for access to or suspension of personal information processing may be restricted or denied if there are special provisions under applicable laws.</p>",
+        "<p class='ml-2'>6. Users may not request correction or deletion of information required to be collected under other laws.</p>",
+        "<p class='ml-2'>7. We verify the identity of anyone requesting access, correction, deletion, or processing suspension.</p>"
+      ]
+    },
+    {
+      "title": "Article 11 (Department Handling Personal Information Access Requests, etc.)",
+      "lines": [
+        "In accordance with the Personal Information Protection Act, users may request access to their personal information through the department listed below. The company will make every effort to promptly process the data subject's exercise of rights.",
+        "<table class='table table-bordered table-sm'><thead><tr class='table-secondary'><th>Receiving and Processing Department</th></tr></thead><tbody><tr><td>Department: MZC Billing Team<br>Email:mzc_grp_billing@megazone.com</td></tr></tbody></table>"
+      ]
+    },
+    {
+      "title": "Article 12 (Remedies for Infringement of User Rights)",
+      "lines": [
+        "Users may contact the following institutions for remedies, consultation, or inquiries regarding personal information infringement.",
+        "These institutions are independent from the company. If users are not satisfied with the company's internal handling of personal information complaints or need further assistance, they may contact the following:",
+        "<table class='table table-bordered table-sm'><tbody><tr><th rowspan='4' class='table-secondary'>Personal Information Infringement Report Center (operated by KISA)</th><th class='table-secondary'>Jurisdiction</th><td>Reporting personal information infringement, applying for consultation</td></tr><tr><th class='table-secondary'>Website</th><td>privacy.kisa.or.kr</td></tr><tr><th class='table-secondary'>Phone</th><td>(No area code) 118</td></tr><tr><th class='table-secondary'>Address</th><td>(58324) 9 Jinheung-gil, Naju-si, Jeollanam-do, Personal Information Infringement Report Center</td></tr><tr><th rowspan='4' class='table-secondary'>Personal Information Dispute Mediation Committee (operated by the Personal Information Protection Commission)</th><th class='table-secondary'>Jurisdiction</th><td>Applying for personal information dispute mediation, group dispute mediation (civil resolution)</td></tr><tr><th class='table-secondary'>Website</th><td>www.kopico.go.kr</td></tr><tr><th class='table-secondary'>Phone</th><td>(No area code) 1833-6972</td></tr><tr><th class='table-secondary'>Address</th><td>(03171) 209 Sejong-daero, Jongno-gu, Seoul, 12th floor, Government Complex Seoul</td></tr><tr><th rowspan='2' class='table-secondary'>Supreme Prosecutors' Office</th><th class='table-secondary'>Website</th><td>www.spo.go.kr</td></tr><tr><th class='table-secondary'>Phone</th><td>(No area code) 1301</td></tr><tr><th rowspan='2' class='table-secondary'>National Police Agency</th><th class='table-secondary'>Website</th><td>ecrm.cyber.go.kr</td></tr><tr><th class='table-secondary'>Phone</th><td>(No area code) 182</td></tr></tbody></table>"
+      ]
+    },
+    {
+      "title": "Article 13 (Responsibility for Linked Sites)",
+      "lines": [
+        "The company may provide links to other companies' websites or materials. In this case, the company has no control over the external sites and materials, and cannot be held responsible for the usefulness of the services or materials provided through the external sites, nor can it guarantee them. Therefore, if users click on a link included by the company and move to the page of another site, please check the reliability of the site users visit and review the privacy policy of the new site as it is unrelated to the company's privacy policy."
+      ]
+    },
+    {
+      "title": "Article 14 (Changes to This Privacy Policy)",
+      "lines": [
+        "We will post any changes to this Privacy Policy on our website without delay. Previous versions are available through the link below.",
+        "This Privacy Policy V1.8 takes effect April 23, 2026."
+      ]
+    }
+  ]
+}
