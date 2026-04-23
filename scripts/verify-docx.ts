@@ -3,7 +3,7 @@
  * usage: pnpm tsx scripts/verify-docx.ts <input.docx> [out.json]
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { parseDocx } from '../src/lib/docxParse';
+import { parseDocx } from '../src/lib/docx';
 
 async function main() {
   const [, , src, out] = process.argv;

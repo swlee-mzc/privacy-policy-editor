@@ -1,5 +1,5 @@
 import type { DocMeta } from '../types';
-import type { IssueRef } from '../lib/docxParse';
+import type { IssueRef } from '../lib/docx';
 
 type Props = {
   meta: DocMeta;

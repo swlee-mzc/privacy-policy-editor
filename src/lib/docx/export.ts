@@ -1,3 +1,8 @@
+/**
+ * Doc → DOCX 내보내기.
+ * `docx` 라이브러리로 완전한 .docx 파일 Blob 을 생성한다.
+ * rowspan/colspan, 인라인 `<b>`, `<br>` 지원.
+ */
 import {
   Document,
   Packer,
@@ -12,13 +17,10 @@ import {
   BorderStyle,
   ShadingType,
 } from 'docx';
-import type { Doc, Section, TableData } from '../types';
-import { parseTable } from './table';
+import type { Doc, Section, TableData } from '../../types';
+import { parseTable } from '../table';
 
 /**
- * DOCX 내보내기. rowspan/colspan, 인라인 <b>, <br> 지원.
- * docx 라이브러리를 사용해 완전한 .docx 파일 Blob 을 생성한다.
- *
  * @param title 문서 최상단 센터 정렬 제목. 생략 시 KO/JA/EN 첫 섹션 제목 패턴을
  *   보고 자동 결정 (`제` → '개인정보 처리방침', `第` → '個人情報処理方針',
  *   `Article` → 'Privacy Policy'). UI 는 title 인자 없이 호출해도 KO 로 폴백.
@@ -27,7 +29,6 @@ export async function toDocxBlob(doc: Doc, title?: string): Promise<Blob> {
   const resolvedTitle = title ?? detectTitle(doc);
   const children: (Paragraph | Table)[] = [];
 
-  // 문서 제목
   children.push(
     new Paragraph({
       children: [new TextRun({ text: resolvedTitle, bold: true, size: 32 })],
@@ -36,13 +37,11 @@ export async function toDocxBlob(doc: Doc, title?: string): Promise<Blob> {
     }),
   );
 
-  // headers
   for (const h of doc.headers || []) {
     if (!h.trim()) continue;
     children.push(paragraphFromLine(h));
   }
 
-  // contents
   for (const section of doc.contents || []) {
     children.push(...sectionToDocx(section));
   }

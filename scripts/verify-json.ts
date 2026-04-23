@@ -7,7 +7,7 @@
  */
 import { readFileSync } from 'node:fs';
 import type { Doc } from '../src/types';
-import { buildDocInfo, validateDoc } from '../src/lib/docxParse';
+import { buildDocInfo, validateDoc } from '../src/lib/docx';
 
 function report(path: string, doc: Doc) {
   console.log(`\n=== ${path} ===`);

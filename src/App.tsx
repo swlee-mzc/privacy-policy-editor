@@ -4,7 +4,7 @@ import { Toolbar } from './components/Toolbar';
 import { Editor } from './components/Editor';
 import { Preview } from './components/Preview';
 import { DocBanner } from './components/DocBanner';
-import { parseDocx, buildDocInfo, validateDoc, type Issue } from './lib/docxParse';
+import { parseDocx, buildDocInfo, validateDoc, type Issue } from './lib/docx';
 
 // 동일 issues/info 로 재렌더하지 않도록 얕은 비교. JSON 문자열화가 가장 단순.
 function issuesEqual(a: Issue[], b: Issue[]): boolean {
