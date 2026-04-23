@@ -310,7 +310,7 @@ export function cloneLastBodyRow(data: TableData): TableRow | null {
         isHead: false,
         className: r.className,
         cells: r.cells.map((c) => ({
-          tag: c.tag === 'th' ? 'td' : c.tag,
+          tag: c.tag,
           className: c.className,
           rowspan: 1,
           colspan: c.colspan,
@@ -320,4 +320,40 @@ export function cloneLastBodyRow(data: TableData): TableRow | null {
     }
   }
   return null;
+}
+
+/**
+ * 셀의 `<td>` ↔ `<th>` 전환. tbody 셀 한정으로 `table-secondary` 클래스를 동기화한다.
+ * - td → th (tbody): tag=th, class 에 `table-secondary` 추가
+ * - th → td (tbody): tag=td, class 에서 `table-secondary` 제거
+ * - thead 셀은 구조상 th 가 강제되므로 호출 측에서 방어 (아무 동작 안 함 권장)
+ */
+export function toggleCellHeader(
+  data: TableData,
+  rowIdx: number,
+  cellIdx: number,
+): TableData {
+  const row = data.rows[rowIdx];
+  if (!row) return data;
+  if (row.isHead) return data;
+
+  const rows = data.rows.map((r, i) => {
+    if (i !== rowIdx) return r;
+    const cells = r.cells.map((c, j) => {
+      if (j !== cellIdx) return c;
+      const nextTag: 'th' | 'td' = c.tag === 'th' ? 'td' : 'th';
+      const classes = c.className.split(/\s+/).filter(Boolean);
+      let nextClasses: string[];
+      if (nextTag === 'th') {
+        nextClasses = classes.includes('table-secondary')
+          ? classes
+          : [...classes, 'table-secondary'];
+      } else {
+        nextClasses = classes.filter((cls) => cls !== 'table-secondary');
+      }
+      return { ...c, tag: nextTag, className: nextClasses.join(' ') };
+    });
+    return { ...r, cells };
+  });
+  return { ...data, rows };
 }

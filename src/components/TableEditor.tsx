@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { TableData } from '../types';
-import { cloneLastBodyRow, setCellSpan } from '../lib/table';
+import { cloneLastBodyRow, setCellSpan, toggleCellHeader } from '../lib/table';
 import { useAutosize } from '../hooks/useAutosize';
 import { IconBtn } from './IconBtn';
 
@@ -35,6 +35,13 @@ export function TableEditor({ data, onChange }: Props) {
         return;
       }
       onChange(next);
+    },
+    [data, onChange],
+  );
+
+  const toggleHeader = useCallback(
+    (rowIdx: number, cellIdx: number) => {
+      onChange(toggleCellHeader(data, rowIdx, cellIdx));
     },
     [data, onChange],
   );
@@ -77,6 +84,9 @@ export function TableEditor({ data, onChange }: Props) {
                     <SpanControls
                       rowspan={cell.rowspan}
                       colspan={cell.colspan}
+                      isHeader={cell.tag === 'th'}
+                      canToggleHeader={!row.isHead}
+                      onToggleHeader={() => toggleHeader(rIdx, cIdx)}
                       onChange={(nr, nc) => changeSpan(rIdx, cIdx, nr, nc)}
                     />
                     <CellTextarea
@@ -103,15 +113,31 @@ export function TableEditor({ data, onChange }: Props) {
 function SpanControls({
   rowspan,
   colspan,
+  isHeader,
+  canToggleHeader,
+  onToggleHeader,
   onChange,
 }: {
   rowspan: number;
   colspan: number;
+  isHeader: boolean;
+  canToggleHeader: boolean;
+  onToggleHeader: () => void;
   onChange: (rowspan: number, colspan: number) => void;
 }) {
   const merged = rowspan > 1 || colspan > 1;
   return (
     <div className="cell-span" onClick={(e) => e.stopPropagation()}>
+      {canToggleHeader && (
+        <button
+          type="button"
+          className={`cell-header-toggle${isHeader ? ' is-header' : ''}`}
+          title={isHeader ? '라벨 셀 해제 (th → td)' : '라벨 셀로 지정 (td → th, table-secondary)'}
+          onClick={onToggleHeader}
+        >
+          H
+        </button>
+      )}
       <label title="row span">
         r
         <input

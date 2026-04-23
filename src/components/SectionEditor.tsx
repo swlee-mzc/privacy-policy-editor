@@ -14,10 +14,18 @@ type Props = {
   onMoveDown: () => void;
 };
 
-const EMPTY_TABLE =
+const EMPTY_TABLE_TOP_HEADER =
   "<table class='table table-bordered table-sm'>" +
   "<thead><tr class='table-secondary'><th>구분</th><th>내용</th></tr></thead>" +
   "<tbody><tr><td></td><td></td></tr></tbody>" +
+  "</table>";
+
+const EMPTY_TABLE_LEFT_LABEL =
+  "<table class='table table-bordered table-sm'>" +
+  "<tbody>" +
+  "<tr><th class='table-secondary'>구분</th><td></td></tr>" +
+  "<tr><th class='table-secondary'>구분</th><td></td></tr>" +
+  "</tbody>" +
   "</table>";
 
 export function SectionEditor({
@@ -44,8 +52,11 @@ export function SectionEditor({
     onChange({ ...section, lines });
   };
 
-  const addLine = (kind: 'text' | 'html' | 'table') => {
-    const v = kind === 'text' ? '' : kind === 'html' ? '<b></b>' : EMPTY_TABLE;
+  const addLine = (kind: 'text' | 'html' | 'table-top' | 'table-left') => {
+    let v = '';
+    if (kind === 'html') v = '<b></b>';
+    else if (kind === 'table-top') v = EMPTY_TABLE_TOP_HEADER;
+    else if (kind === 'table-left') v = EMPTY_TABLE_LEFT_LABEL;
     onChange({ ...section, lines: [...section.lines, v] });
   };
 
@@ -82,7 +93,8 @@ export function SectionEditor({
         <div className="add-line-row">
           <IconBtn variant="ghost" onClick={() => addLine('text')}>+ 텍스트</IconBtn>
           <IconBtn variant="ghost" onClick={() => addLine('html')}>+ HTML/강조</IconBtn>
-          <IconBtn variant="ghost" onClick={() => addLine('table')}>+ 표</IconBtn>
+          <IconBtn variant="ghost" onClick={() => addLine('table-top')} title="첫 행이 헤더인 표">+ 표(상단 헤더)</IconBtn>
+          <IconBtn variant="ghost" onClick={() => addLine('table-left')} title="좌측 열이 라벨인 표">+ 표(좌측 라벨)</IconBtn>
         </div>
       </div>
     </div>
