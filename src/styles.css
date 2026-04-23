@@ -115,11 +115,34 @@ body {
   line-height: 1.4;
 }
 .ed-table textarea:focus { background: #fffbea; outline: none; }
-.cell-meta {
-  position: absolute; top: 0; right: 0;
-  font-size: .6rem; color: #6c757d; padding: 0 .25rem;
-  background: rgba(255,255,255,.7); pointer-events: none;
+.cell-span {
+  position: absolute; top: 1px; right: 1px;
+  display: flex; align-items: center; gap: .15rem;
+  font-size: .6rem; color: #6c757d;
+  background: rgba(255,255,255,.85);
+  padding: 0 .15rem; border-radius: .15rem;
+  line-height: 1;
 }
+.cell-span label {
+  display: inline-flex; align-items: center; gap: 1px;
+  margin: 0;
+}
+.cell-span input[type="number"] {
+  width: 2.1em; border: 1px solid #ced4da; border-radius: .15rem;
+  padding: 0 .1rem; font-size: .6rem; line-height: 1.2;
+  background: #fff;
+  -moz-appearance: textfield;
+}
+.cell-span input[type="number"]::-webkit-outer-spin-button,
+.cell-span input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+.cell-span-reset {
+  border: none; background: transparent; cursor: pointer;
+  color: #adb5bd; font-size: .75rem; padding: 0 .15rem;
+  line-height: 1;
+}
+.cell-span-reset:hover { color: #dc3545; }
 
 /* Preview */
 .preview { font-size: .95rem; color: #212529; background: #fff; }

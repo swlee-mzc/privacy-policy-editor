@@ -15,6 +15,7 @@
 import JSZip from 'jszip';
 import { XMLParser } from 'fast-xml-parser';
 import type { Doc } from '../types';
+import { parseTable, validateTableGrid } from './table';
 
 /**
  * 섹션 제목 패턴 (다국어). 제목 뒤에 본문이 같은 단락에 이어져 있어도
@@ -843,6 +844,26 @@ export function validateDoc(doc: Doc): Issue[] {
     issues.push({
       message: `스마트따옴표(" " ' ') ${smartQuoteTotal}개가 현재 JSON 에 남아있습니다. 일반 따옴표로 수정 권장.`,
       refs: smartQuoteRefs,
+    });
+  }
+
+  // (10) 표 격자 불일치 — rowspan/colspan 합이 행 너비와 어긋나거나 구멍이 있는 경우.
+  const gridRefs: IssueRef[] = [];
+  const gridDetails: string[] = [];
+  for (const o of origins) {
+    if (!o.text.startsWith('<table')) continue;
+    const td = parseTable(o.text);
+    if (!td) continue;
+    const g = validateTableGrid(td);
+    if (g.length) {
+      gridRefs.push(refForLine(o));
+      gridDetails.push(`${refForLine(o).label}: ${g[0]}${g.length > 1 ? ` 외 ${g.length - 1}건` : ''}`);
+    }
+  }
+  if (gridRefs.length) {
+    issues.push({
+      message: `표 격자 일관성 오류 ${gridRefs.length}건 (rowspan/colspan 합 불일치 또는 빈 격자). ${gridDetails.slice(0, 3).join(' / ')}${gridDetails.length > 3 ? ' …' : ''}`,
+      refs: gridRefs,
     });
   }
 
