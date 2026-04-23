@@ -64,7 +64,7 @@ export async function openFile(): Promise<OpenedFile | null> {
  * 반환: 새로 선택된 handle (있으면). 덮어쓰기 시 같은 handle 반환.
  */
 export async function saveFile(params: {
-  content: string;
+  content: string | Blob;
   suggestedName: string;
   mimeType?: string;
   extension?: string;
@@ -113,7 +113,7 @@ export async function saveFile(params: {
   }
 
   // 3) Fallback: blob download (브라우저 다운로드 폴더로 직행)
-  const blob = new Blob([content], { type: mimeType });
+  const blob = content instanceof Blob ? content : new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

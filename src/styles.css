@@ -123,8 +123,8 @@ body {
 
 /* Preview */
 .preview { font-size: .95rem; color: #212529; background: #fff; }
-.preview h1.doc-title {
-  text-align: center; margin: 0 0 1.5rem; font-size: 1.5rem; font-weight: 600;
+.preview-header .doc-title {
+  font-size: 1rem; font-weight: 600; color: #212529;
 }
 .preview h2.section-title {
   margin-top: 1.5rem; padding-top: .75rem;
@@ -138,6 +138,13 @@ body {
   .toolbar, #editorPanel, .drop-zone { display: none !important; }
   .panels { grid-template-columns: 1fr !important; padding: 0 !important; overflow: visible !important; }
   .panel, .panel-body { overflow: visible !important; box-shadow: none !important; }
-  .panel-header { display: none !important; }
+  #previewPanel .panel-header {
+    background: #fff !important; border: none !important;
+    justify-content: center !important;
+  }
+  #previewPanel .panel-header small { display: none !important; }
+  #previewPanel .panel-header .doc-title {
+    font-size: 1.5rem !important; font-weight: 600 !important;
+  }
   body { background: #fff !important; height: auto !important; }
 }

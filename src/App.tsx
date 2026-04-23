@@ -73,8 +73,9 @@ export default function App() {
               </div>
             </div>
             <div className="panel" id="previewPanel">
-              <div className="panel-header">
-                <span>미리보기 (우)</span>
+              <div className="panel-header preview-header">
+                <span className="doc-title">개인정보 처리방침</span>
+                <small className="text-muted" style={{ fontWeight: 'normal' }}>미리보기</small>
               </div>
               <div className="panel-body">
                 <Preview doc={doc} />

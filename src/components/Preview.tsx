@@ -36,7 +36,6 @@ export function Preview({ doc }: Props) {
 
   return (
     <div className="preview">
-      <h1 className="doc-title">개인정보 처리방침</h1>
       <div className="headers" dangerouslySetInnerHTML={{ __html: headersHtml }} />
       <div dangerouslySetInnerHTML={{ __html: contentsHtml }} />
     </div>

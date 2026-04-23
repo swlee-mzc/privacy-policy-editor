@@ -1,5 +1,6 @@
 import type { Doc } from '../types';
 import { toJson, toMarkdown } from '../lib/export';
+import { toDocxBlob } from '../lib/docx';
 import { hasFilePicker, openFile, saveFile } from '../lib/fs';
 
 type Props = {
@@ -40,6 +41,18 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
       suggestedName: `${base}.md`,
       mimeType: 'text/markdown',
       extension: 'md',
+    });
+  };
+
+  const exportDocx = async () => {
+    if (!doc) return;
+    const base = fileName.replace(/\.json$/i, '');
+    const blob = await toDocxBlob(doc);
+    await saveFile({
+      content: blob,
+      suggestedName: `${base}.docx`,
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      extension: 'docx',
     });
   };
 
@@ -85,7 +98,15 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
           disabled={!doc}
           title="Markdown으로 내보내기"
         >
-          MD 내보내기
+          MD
+        </button>
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={exportDocx}
+          disabled={!doc}
+          title="Word 문서(.docx)로 내보내기"
+        >
+          DOCX
         </button>
         <button
           className="btn btn-sm btn-outline-secondary"
