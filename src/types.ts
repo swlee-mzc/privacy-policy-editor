@@ -30,7 +30,7 @@ export type TableData = {
   rows: TableRow[];
 };
 
-import type { Issue } from './lib/docxParse';
+import type { Issue } from './lib/docx';
 
 export type DocMeta = {
   source: 'docx' | 'json';
