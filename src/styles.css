@@ -11,6 +11,13 @@ body {
   display: flex; gap: .5rem; align-items: center; flex-wrap: wrap;
 }
 .toolbar .meta { font-size: .8rem; color: #6c757d; }
+.toolbar .gh-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; margin-left: .25rem;
+  color: #6c757d; border-radius: .25rem;
+  transition: color .1s, background-color .1s;
+}
+.toolbar .gh-link:hover { color: #212529; background: #e9ecef; }
 
 .panels {
   flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: .5rem;
@@ -225,7 +232,7 @@ body {
 
 @media print {
   .doc-banner { display: none !important; }
-  .toolbar, #editorPanel, .drop-zone { display: none !important; }
+  .toolbar, .gh-link, #editorPanel, .drop-zone { display: none !important; }
   .panels { grid-template-columns: 1fr !important; padding: 0 !important; overflow: visible !important; }
   .panel, .panel-body { overflow: visible !important; box-shadow: none !important; }
   #previewPanel .panel-header {
