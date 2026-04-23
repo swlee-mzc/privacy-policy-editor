@@ -24,6 +24,15 @@ import { tableToHtml } from './table-emit';
 import type { NormalizeCounters } from './normalize';
 import { normalizeLine } from './normalize';
 
+/** `<w:br/>` 로 인해 텍스트에 `<br>` 이 섞여 들어온 경우 여러 라인으로 분리.
+ *  셀 내부가 아닌 본문 단락/sec.rest 용. */
+function splitBrToLines(text: string, counters: NormalizeCounters): string[] {
+  return text
+    .split(/<br\s*\/?>/gi)
+    .map((part) => normalizeLine(part, counters))
+    .filter((l) => l.length > 0);
+}
+
 export type SectionMeta = {
   num: number;
   title: string;
@@ -107,21 +116,25 @@ export function convert(docXml: string, numMap: NumMap): ConvertResult {
           headingLen,
         });
         if (sec.rest) {
-          const rest = normalizeLine(sec.rest, normalizeCounters);
-          if (rest) current.lines.push(rest);
+          for (const rest of splitBrToLines(sec.rest, normalizeCounters)) {
+            current.lines.push(rest);
+          }
         }
         continue;
       }
       // sec && sec.num <= lastSectionNum → Word 번호 템플릿 중복 헤딩. 본문으로 흘려보냄.
 
       const [nid, ilvl] = paragraphNumInfo(child);
-      let line = text;
-      if (nid) line = nstate.prefix(nid, ilvl) + text;
-      line = normalizeLine(line, normalizeCounters);
-      if (!line) continue;
+      const prefix = nid ? nstate.prefix(nid, ilvl) : '';
+      const lines = splitBrToLines(text, normalizeCounters);
+      if (lines.length === 0) continue;
+      // 번호 접두사는 첫 라인에만 붙이고 재정규화(접두사 자체에 스마트따옴표 없음).
+      if (prefix) lines[0] = normalizeLine(prefix + lines[0], normalizeCounters);
 
-      if (inIntro) headers.push(line);
-      else if (current) current.lines.push(line);
+      for (const line of lines) {
+        if (inIntro) headers.push(line);
+        else if (current) current.lines.push(line);
+      }
     } else if (tag === 'w:tbl') {
       const html = tableToHtml(child);
       if (!html) continue;

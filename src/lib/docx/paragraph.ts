@@ -10,10 +10,13 @@ import type { Node } from './xml';
 import { collectText, findDeep, findFirst, getAttrs, getChildren, getTag } from './xml';
 
 /**
- * run 내부 텍스트만 추출 (w:t + w:delText).
- * `<w:br>`/`<w:tab>` 은 의도적으로 무시 — 기존 `collectText` 동작과 호환성 유지.
- * 헤딩+본문이 br 로 합쳐진 단락(JA 第6条 케이스)에서 섹션 매칭이 실패하지
- * 않도록 br 은 빈 문자로 취급한다. 시각적 줄바꿈 손실은 수용 가능.
+ * run 내부 텍스트 + `<w:br/>` 을 `<br>` 로 보존.
+ * 상위에서 맥락에 따라 처리한다:
+ *   - 셀: `<br>` 그대로 HTML 에 둠 (셀 내 줄바꿈)
+ *   - 본문 단락 / sec.rest: `<br>` 로 split 해서 여러 라인으로 분리 (`splitBrToLines`)
+ *   - 섹션 헤딩 매칭: 정규식이 `<br>` 가 prefix 에 있어도 매칭되도록 설계되어 있으므로
+ *     rest 쪽만 split 하면 됨.
+ * `<w:tab>` 은 여전히 무시.
  */
 export function runText(r: Node): string {
   let out = '';
@@ -23,6 +26,8 @@ export function runText(r: Node): string {
       for (const cc of getChildren(c)) {
         if ('#text' in cc) out += String(cc['#text']);
       }
+    } else if (tag === 'w:br') {
+      out += '<br>';
     }
   }
   return out;
