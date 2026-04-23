@@ -6,7 +6,7 @@
 
 - 좌우 분할: **좌** 편집기 / **우** 미리보기 (실시간 동기화)
 - 섹션·라인·테이블 행 추가/삭제/이동/복제
-- 표 셀 `rowspan` / `colspan` 보존 (DOMParser 기반 구조 편집)
+- 표 셀 `rowspan` / `colspan` **대화식 편집**: 셀 우상단 `r`/`c` 숫자 입력으로 병합, `×` 로 1×1 복원. 격자 일관성을 깨는 변경은 자동 차단.
 - 줄바꿈: 테이블 셀 `<br>` ↔ `\n` 양방향 변환
 - **File System Access API** 로 저장 위치·파일명 선택 (Chromium 계열)
 - 입출력 매트릭스:
@@ -40,6 +40,7 @@
   - 번호 스타일 혼재 (`1.` / `①` / `ⅰ)` / `1)`)
   - 도트 문자 혼재 (`·` / `⋅` / `․` / `∙` / `・`)
   - 스마트따옴표 잔존 (JSON 로드 시)
+  - 표 격자 일관성 오류 (rowspan/colspan 합 불일치 또는 빈 격자)
 
 각 REVIEW 항목에는 위치 **ref 칩** 이 붙어 있고, 클릭하면 **에디터·미리보기 두 패널이 동시에 스크롤** + 1.6s flash 하이라이트 됩니다.
 
@@ -56,6 +57,9 @@ pnpm tsx scripts/verify-json.ts <input.json>
 
 # 다국어 교차 언어 구조 정합 (첫 파일 기준으로 섹션/라인 수 비교)
 pnpm tsx scripts/verify-json.ts <ko.json> <ja.json> <en.json>
+
+# JSON → DOCX 내보내기 (UI 의 `DOCX...` 버튼과 동일 출력)
+pnpm tsx scripts/export-docx.ts <input.json> [<output.docx>]
 ```
 
 출력 블록:
