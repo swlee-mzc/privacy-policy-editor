@@ -6,6 +6,7 @@ import { IconBtn } from './IconBtn';
 import { TableEditor } from './TableEditor';
 
 type Props = {
+  sectionIndex: number;
   index: number;
   line: string;
   isFirst: boolean;
@@ -17,7 +18,7 @@ type Props = {
 };
 
 export function LineEditor({
-  index, line, isFirst, isLast,
+  sectionIndex, index, line, isFirst, isLast,
   onChange, onDelete, onMoveUp, onMoveDown,
 }: Props) {
   const kind = lineKind(line);
@@ -25,7 +26,7 @@ export function LineEditor({
   const taRef = useAutosize<HTMLTextAreaElement>(line);
 
   return (
-    <div className="ed-line">
+    <div className="ed-line" data-section={sectionIndex} data-line={index}>
       <div className="ed-line-label">
         <span>#{index + 1}</span>
         <span className={`kind-badge kind-${kind}`}>{kind}</span>

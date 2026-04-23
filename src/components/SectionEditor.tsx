@@ -21,7 +21,7 @@ const EMPTY_TABLE =
   "</table>";
 
 export function SectionEditor({
-  index: _index, section, isFirst, isLast,
+  index, section, isFirst, isLast,
   onChange, onDelete, onDuplicate, onMoveUp, onMoveDown,
 }: Props) {
   const updateTitle = (v: string) => onChange({ ...section, title: v });
@@ -50,8 +50,8 @@ export function SectionEditor({
   };
 
   return (
-    <div className="ed-section">
-      <div className="ed-section-head">
+    <div className="ed-section" data-section={index}>
+      <div className="ed-section-head" data-section-head={index}>
         <input
           className="title-input"
           value={section.title}
@@ -68,6 +68,7 @@ export function SectionEditor({
         {section.lines.map((line, lIdx) => (
           <LineEditor
             key={lIdx}
+            sectionIndex={index}
             index={lIdx}
             line={line}
             isFirst={lIdx === 0}

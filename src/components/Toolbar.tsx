@@ -7,7 +7,7 @@ type Props = {
   doc: Doc | null;
   fileName: string;
   fileHandle?: FileSystemFileHandle;
-  onLoad: (name: string, content: string, handle?: FileSystemFileHandle) => void;
+  onLoad: (name: string, file: File, handle?: FileSystemFileHandle) => void;
   onHandleChange: (h: FileSystemFileHandle | undefined) => void;
 };
 
@@ -16,7 +16,7 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
 
   const handleOpen = async () => {
     const result = await openFile();
-    if (result) onLoad(result.name, result.content, result.handle);
+    if (result) onLoad(result.name, result.file, result.handle);
   };
 
   const save = async (saveAs: boolean) => {
@@ -60,8 +60,12 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
 
   return (
     <div className="toolbar">
-      <button className="btn btn-sm btn-outline-primary" onClick={handleOpen}>
-        JSON 열기
+      <button
+        className="btn btn-sm btn-outline-primary"
+        onClick={handleOpen}
+        title="JSON 또는 DOCX 파일 열기"
+      >
+        파일 열기...
       </button>
       <span className="meta">
         {doc ? (
@@ -98,7 +102,7 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
           disabled={!doc}
           title="Markdown으로 내보내기"
         >
-          MD
+          MD...
         </button>
         <button
           className="btn btn-sm btn-outline-secondary"
@@ -106,14 +110,15 @@ export function Toolbar({ doc, fileName, fileHandle, onLoad, onHandleChange }: P
           disabled={!doc}
           title="Word 문서(.docx)로 내보내기"
         >
-          DOCX
+          DOCX...
         </button>
         <button
           className="btn btn-sm btn-outline-secondary"
           onClick={() => window.print()}
           disabled={!doc}
+          title="미리보기만 인쇄 (프린터 대화상자)"
         >
-          인쇄
+          인쇄...
         </button>
       </div>
 

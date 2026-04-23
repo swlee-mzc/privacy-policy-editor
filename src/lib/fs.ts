@@ -21,20 +21,31 @@ export function hasFilePicker(): boolean {
 
 export type OpenedFile = {
   name: string;
-  content: string;
+  file: File;
   handle?: FileSystemFileHandle;
 };
 
-/** 파일 열기. picker 사용 가능하면 handle 반환해 Save로 재사용. */
+const DOCX_MIME =
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+/** 파일 열기 (JSON/DOCX). picker 사용 가능하면 handle 반환해 Save 로 재사용. */
 export async function openFile(): Promise<OpenedFile | null> {
   const w = window as AnyWindow;
   if (w.showOpenFilePicker) {
     try {
       const [handle] = await w.showOpenFilePicker({
-        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+        types: [
+          {
+            description: 'JSON 또는 DOCX',
+            accept: {
+              'application/json': ['.json'],
+              [DOCX_MIME]: ['.docx'],
+            },
+          },
+        ],
       });
       const file = await handle.getFile();
-      return { name: file.name, content: await file.text(), handle };
+      return { name: file.name, file, handle };
     } catch (e) {
       if ((e as DOMException).name === 'AbortError') return null;
       console.warn('openFilePicker 실패, fallback:', e);
@@ -44,11 +55,11 @@ export async function openFile(): Promise<OpenedFile | null> {
   return await new Promise<OpenedFile | null>((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json,application/json';
-    input.onchange = async () => {
+    input.accept = `.json,application/json,.docx,${DOCX_MIME}`;
+    input.onchange = () => {
       const f = input.files?.[0];
       if (!f) return resolve(null);
-      resolve({ name: f.name, content: await f.text() });
+      resolve({ name: f.name, file: f });
     };
     input.oncancel = () => resolve(null);
     input.click();

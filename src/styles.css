@@ -134,7 +134,74 @@ body {
 .preview .section-body > * { margin-bottom: .5rem; line-height: 1.7; }
 .preview .section-body p { margin-bottom: .5rem; }
 
+/* DOCX 변환/JSON 로드 요약 배너 (미리보기 패널 헤더 아래) */
+.doc-banner {
+  display: flex; align-items: flex-start; gap: .5rem;
+  padding: .55rem .75rem; font-size: .78rem; line-height: 1.45;
+  border-bottom: 1px solid #e9ecef;
+  background: #eef6ff; color: #084298;
+  border-left: 3px solid #0d6efd;
+}
+.doc-banner.warn {
+  background: #fff7e0; color: #664d03; border-left-color: #ffc107;
+}
+.doc-banner-body { flex: 1; min-width: 0; }
+.doc-banner-title { font-weight: 600; }
+.doc-banner-title .doc-banner-file {
+  font-weight: normal; margin-left: .4rem; color: #6c757d;
+  word-break: break-all;
+}
+.doc-banner-info { color: #495057; margin-top: .1rem; }
+.doc-banner.warn .doc-banner-info { color: #6c5a1a; }
+.doc-banner-issues {
+  margin: .2rem 0 0; padding-left: 1.1rem;
+}
+.doc-banner-issues li { margin-bottom: .1rem; }
+.doc-banner-section { margin-top: .4rem; }
+.doc-banner-section-title {
+  font-weight: 600; font-size: .75rem; opacity: .85;
+}
+.doc-banner-autofix { opacity: .8; }
+.doc-banner-autofix .doc-banner-section-title::before { content: '✓ '; }
+.doc-banner.warn .doc-banner-autofix {
+  color: #495057;
+}
+
+.doc-banner-refs {
+  display: flex; flex-wrap: wrap; gap: .25rem;
+  margin-top: .2rem;
+}
+.doc-banner-ref {
+  border: 1px solid rgba(0,0,0,.15);
+  background: rgba(255,255,255,.75);
+  color: inherit;
+  font: inherit; font-size: .7rem; line-height: 1.4;
+  padding: .05rem .4rem; border-radius: .7rem;
+  cursor: pointer;
+}
+.doc-banner-ref:hover {
+  background: #fff; border-color: rgba(0,0,0,.3);
+}
+
+/* 이슈 ref 클릭 시 짧게 반짝. */
+@keyframes flash-bg {
+  0%   { background-color: rgba(255, 235, 59, .55); }
+  100% { background-color: transparent; }
+}
+.flash-highlight {
+  animation: flash-bg 1.6s ease-out;
+  scroll-margin-top: 1rem;
+  scroll-margin-bottom: 1rem;
+}
+.doc-banner-close {
+  border: 0; background: transparent; color: inherit;
+  cursor: pointer; font-size: .9rem; padding: 0 .3rem;
+  line-height: 1; opacity: .6;
+}
+.doc-banner-close:hover { opacity: 1; }
+
 @media print {
+  .doc-banner { display: none !important; }
   .toolbar, #editorPanel, .drop-zone { display: none !important; }
   .panels { grid-template-columns: 1fr !important; padding: 0 !important; overflow: visible !important; }
   .panel, .panel-body { overflow: visible !important; box-shadow: none !important; }

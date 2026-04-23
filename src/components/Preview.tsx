@@ -3,18 +3,29 @@ import { escapeHtml, newlineToBr } from '../lib/line';
 
 type Props = { doc: Doc };
 
+/**
+ * 이슈 앵커 점프를 위해 헤더/섹션/라인에 `data-section` / `data-line` 를 심는다.
+ *   - `data-section="-1"`           : headers (intro)
+ *   - `data-section="{i}"` + no line : 섹션 헤딩 앵커
+ *   - `data-section="{i}" data-line="{l}"` : 섹션 내 라인
+ */
 export function Preview({ doc }: Props) {
   const headersHtml = (doc.headers || [])
-    .map((h) => (h.trim().startsWith('<') ? h : `<p>${newlineToBr(h)}</p>`))
+    .map((h, i) => {
+      const attrs = `data-section="-1" data-line="${i}"`;
+      if (h.trim().startsWith('<')) return `<div ${attrs}>${h}</div>`;
+      return `<p ${attrs}>${newlineToBr(h)}</p>`;
+    })
     .join('');
 
   const contentsHtml = (doc.contents || [])
-    .map((section) => {
+    .map((section, sIdx) => {
       const lines = (section.lines || [])
-        .map((line) => {
+        .map((line, lIdx) => {
           const t = line.trim();
-          if (!t) return '';
-          if (t.startsWith('<table')) return `<div>${line}</div>`;
+          const attrs = `data-section="${sIdx}" data-line="${lIdx}"`;
+          if (!t) return `<div ${attrs} class="empty-line"></div>`;
+          if (t.startsWith('<table')) return `<div ${attrs}>${line}</div>`;
           const withBr = newlineToBr(line);
           if (
             t.startsWith('<b>') ||
@@ -22,13 +33,13 @@ export function Preview({ doc }: Props) {
             /^[ⅰⅱⅲⅳⅴ]\)/.test(t) ||
             /^\d+[.)]/.test(t)
           ) {
-            return `<div>${withBr}</div>`;
+            return `<div ${attrs}>${withBr}</div>`;
           }
-          return `<p>${withBr}</p>`;
+          return `<p ${attrs}>${withBr}</p>`;
         })
         .join('');
-      return `<section>
-  <h2 class="section-title">${escapeHtml(section.title)}</h2>
+      return `<section data-section="${sIdx}">
+  <h2 class="section-title" data-section-head="${sIdx}">${escapeHtml(section.title)}</h2>
   <div class="section-body">${lines}</div>
 </section>`;
     })

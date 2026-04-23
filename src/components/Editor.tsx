@@ -102,7 +102,7 @@ function HeaderRow({
   const kind = lineKind(value);
   const ref = useAutosize<HTMLTextAreaElement>(value);
   return (
-    <div className="ed-line">
+    <div className="ed-line" data-section="-1" data-line={index}>
       <div className="ed-line-label">
         <span>#{index + 1}</span>
         <span className={`kind-badge kind-${kind}`}>{kind}</span>
